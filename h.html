@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website dengan Kartu - Tema Peringatan</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;-webkit-tap-highlight-color:transparent}
+        body{background:#000;color:#333;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+        
+        /* Modal Password Protection */
+        #passwordModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        #passwordModal.hidden {
+            display: none;
+        }
+        
+        .password-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .password-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .password-icon {
+            font-size: 2.5rem;
+            margin-right: 10px;
+            color: #ffeb3b;
+        }
+        
+        .password-subtitle {
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .password-input-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .password-input:focus {
+            border-color: #ffeb3b;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .password-toggle:hover {
+            color: #ffeb3b;
+        }
+        
+        .password-submit {
+            background: #ffeb3b;
+            color: #b71c1c;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .password-submit:hover {
+            background: #ffd600;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 235, 59, 0.3);
+        }
+        
+        .password-error {
+            color: #ffcdd2;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            min-height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .password-error.show {
+            opacity: 1;
+        }
+        
+        .password-attempts {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease;
+        }
+
+        /* CSS yang sudah ada sebelumnya */
+        header{background:linear-gradient(135deg,#b71c1c 0%,#d32f2f 100%);color:#fff;padding:1rem;margin-bottom:2rem;position:relative}
+        .navbar{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto}
+        .logo{font-size:1.5rem;font-weight:700;display:flex;align-items:center}
+        .logo-icon{margin-right:.5rem;font-size:2rem}
+        .nav-menu{display:flex;list-style:none}
+        .nav-item{margin-left:2rem}
+        .nav-link{color:#fff;text-decoration:none;font-weight:500;transition:color .3s ease;padding:.5rem 1rem;border-radius:4px}
+        .nav-link:hover{background:rgba(255,255,255,.1);color:#ffeb3b}
+        .filter-buttons{display:flex;margin-right:1rem}
+        .filter-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;padding:.5rem 1rem;margin-left:.5rem;border-radius:4px;cursor:pointer;transition:all .3s ease;display:flex;align-items:center}
+        .filter-btn:hover{background:rgba(255,255,255,.2)}
+        .filter-btn.active{background:rgba(255,235,59,.3);border-color:#ffeb3b;color:#ffeb3b}
+        .filter-btn span{margin-right:.5rem;font-size:1.2rem}
+        .hamburger{display:none;flex-direction:column;cursor:pointer;padding:15px;position:relative;z-index:1001;transition:transform .3s cubic-bezier(.68,-.55,.265,1.55)}
+        .hamburger span{height:3px;width:25px;background:#fff;margin:3px 0;transition:all .4s cubic-bezier(.68,-.55,.265,1.55);border-radius:2px;transform-origin:center}
+        .hamburger.active{transform:rotate(180deg)}
+        .hamburger.active span:nth-child(1){transform:translateY(9px) rotate(45deg)}
+        .hamburger.active span:nth-child(2){opacity:0;transform:scale(0)}
+        .hamburger.active span:nth-child(3){transform:translateY(-9px) rotate(-45deg)}
+        .hamburger:hover{transform:scale(1.1)}
+        .hamburger::before{content:'';position:absolute;top:50%;left:50%;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);transform:translate(-50%,-50%) scale(0);transition:transform .3s ease;z-index:-1}
+        .hamburger:hover::before{transform:translate(-50%,-50%) scale(1)}
+        .mobile-menu{display:none;position:absolute;top:100%;left:0;width:100%;background:linear-gradient(135deg,#b71c1c 0%,#d32f2f 100%);z-index:1000;box-shadow:0 4px 10px rgba(0,0,0,.2);animation:slideDown .4s cubic-bezier(.68,-.55,.265,1.55)}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+        .mobile-menu.active{display:block}
+        .mobile-nav{list-style:none;padding:1rem}
+        .mobile-nav-item{margin-bottom:1rem;opacity:0;transform:translateY(10px);animation:fadeInUp .5s forwards}
+        @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
+        .mobile-nav-item:nth-child(1){animation-delay:.1s}.mobile-nav-item:nth-child(2){animation-delay:.2s}.mobile-nav-item:nth-child(3){animation-delay:.3s}.mobile-nav-item:nth-child(4){animation-delay:.4s}.mobile-nav-item:nth-child(5){animation-delay:.5s}
+        .mobile-nav-link{color:#fff;text-decoration:none;font-weight:500;display:block;padding:.75rem;border-radius:4px;transition:all .3s ease;position:relative;overflow:hidden}
+        .mobile-nav-link::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .5s}
+        .mobile-nav-link:hover::before{left:100%}.mobile-nav-link:hover{background:rgba(255,255,255,.1);color:#ffeb3b;transform:translateX(5px)}
+        .search-container{padding:1rem;border-bottom:1px solid rgba(255,255,255,.2);margin-bottom:1rem;opacity:0;transform:translateY(10px);animation:fadeInUp .5s forwards;animation-delay:.1s}
+        .search-box{display:flex;align-items:center;background:rgba(255,255,255,.1);border-radius:4px;padding:.5rem;transition:all .3s ease;border:1px solid rgba(255,255,255,.2)}
+        .search-box:focus-within{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);box-shadow:0 0 0 2px rgba(255,235,59,.3)}
+        .search-icon{color:rgba(255,255,255,.7);margin:0 .5rem;transition:color .3s ease}
+        .search-box:focus-within .search-icon{color:#ffeb3b}
+        .search-input{background:transparent;border:none;color:#fff;width:100%;padding:.5rem;font-size:1rem;outline:none}
+        .search-input::placeholder{color:rgba(255,255,255,.5)}
+        .search-results{max-height:200px;overflow-y:auto;margin-top:.5rem;display:none}
+        .search-results.active{display:block}
+        .search-result-item{padding:.75rem;color:#fff;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer;transition:background .3s ease}
+        .search-result-item:hover{background:rgba(255,255,255,.1)}
+        .search-result-item:last-child{border-bottom:none}
+        h1{font-size:2.5rem;margin-bottom:.5rem;text-shadow:1px 1px 2px rgba(0,0,0,.3)}
+        .subtitle{font-size:1.2rem;opacity:.9}
+        .container{max-width:1200px;margin:0 auto;padding:0 1rem;flex:1}
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2rem;margin-bottom:3rem}
+        .card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 15px rgba(211,47,47,.2);transition:transform .3s ease,box-shadow .3s ease;position:relative;border:2px solid #ff5252;cursor:pointer}
+        .card.highlight{animation:highlightCard 2s ease;box-shadow:0 0 20px 5px rgba(255,235,59,.7);transform:scale(1.05);z-index:10}
+        @keyframes highlightCard{0%{box-shadow:0 0 0 0 rgba(255,235,59,.7);transform:scale(1)}50%{box-shadow:0 0 20px 10px rgba(255,235,59,.7);transform:scale(1.05)}100%{box-shadow:0 4px 15px rgba(211,47,47,.2);transform:scale(1)}}
+        
+        /* Gaya untuk berbagai jenis label */
+        .card-label{position:absolute;top:5px;left:5px;color:#fff;padding:5px 10px;border-radius:4px;font-size:.8rem;font-weight:700;z-index:3;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:opacity .3s ease,background .3s ease;cursor:pointer}
+        .card-label:hover{filter:brightness(1.2)}
+        .card-label.kemono{background:#d32f2f}
+        .card-label.pinterest{background:#bd081c}
+        .card-label.deviantart{background:#05cc47}
+        .card-label.artstation{background:#13aff0}
+        .card-label.twitter{background:#1da1f2}
+        .card-label.instagram{background:#e1306c}
+        .card-label.default{background:#f00}
+        
+        .expand-btn{position:absolute;top:5px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:4px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;opacity:0;transition:opacity .3s ease,background .3s ease}
+        .card:hover .expand-btn{opacity:1}
+        .expand-btn:hover{background:rgba(0,0,0,.9)}
+        .video-card .expand-btn{left:5px}
+        .card:not(.video-card) .expand-btn{left:80px}
+        /* CSS baru untuk kartu gambar tanpa label */
+        .image-card.no-label .expand-btn{left:5px}
+        
+        .card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transition:left .5s;z-index:1;pointer-events:none}
+        .card.shining::before{left:100%}
+        .card-image{width:100%;height:auto;object-fit:cover;display:block;filter:brightness(.9)}
+        .video-container{position:relative;width:100%;height:200px;overflow:hidden}
+        .video-container iframe{width:100%;height:100%;border:none;display:block}
+        .card-content{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to bottom,transparent 0%,rgba(183,28,28,.8) 100%);color:#fff;padding:.8rem;transform:translateY(0);transition:transform .3s ease,opacity .3s ease;z-index:2;opacity:1}
+        .card-content.hidden{opacity:0;pointer-events:none;transform:translateY(10px)}
+        .card-title{font-size:1.4rem;margin-bottom:.3rem;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:color .3s ease}
+        .card-title:hover{color:#ffeb3b}
+        .card-title .toggle-icon{font-size:1.2rem;transition:transform .3s ease}
+        .card-title.active .toggle-icon{transform:rotate(180deg)}
+        .card-description{margin-bottom:.5rem;opacity:.9;max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:.9rem}
+        .card-description.active{max-height:80px}
+        .description-tag{display:inline-block;background:rgba(255,235,59,.9);color:#b71c1c;font-size:.7rem;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:8px;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+        .card.hidden{display:none}
+        .loading-container{display:flex;justify-content:center;align-items:center;height:200px;width:100%}
+        .loading-spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin 1s ease-in-out infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .error-message{color:#fff;text-align:center;padding:2rem;background:rgba(211,47,47,.8);border-radius:10px;margin:1rem}
+        @media (max-width:768px){.nav-menu{display:none}.hamburger{display:flex}.filter-buttons{margin-right:.5rem}.filter-btn{padding:.4rem .8rem;font-size:.9rem}.filter-btn span{font-size:1rem;margin-right:.3rem}.card-grid{grid-template-columns:1fr}.card-content{padding:.6rem}.card-title{font-size:1.2rem}.description-tag{font-size:.65rem;padding:1px 4px}}
+        @media (max-width:480px){.filter-btn span{display:none}.filter-btn{padding:.4rem .6rem}}
+    </style>
+</head>
+<body>
+    <!-- Modal Password Protection -->
+    <div id="passwordModal">
+        <div class="password-container">
+            <h2 class="password-title">
+                <span class="material-icons password-icon">lock</span>
+                Akses Terbatas
+            </h2>
+            <p class="password-subtitle">Website ini dilindungi kata sandi. Masukkan kata sandi untuk melanjutkan.</p>
+            <div class="password-input-container">
+                <input type="password" id="passwordInput" class="password-input" placeholder="Masukkan kata sandi" autocomplete="off">
+                <button type="button" class="password-toggle" id="passwordToggle">
+                    <span class="material-icons">visibility</span>
+                </button>
+            </div>
+            <button type="button" id="passwordSubmit" class="password-submit">Masuk</button>
+            <div class="password-error" id="passwordError">Kata sandi salah. Silakan coba lagi.</div>
+            <div class="password-attempts" id="passwordAttempts">Percobaan tersisa: 5</div>
+        </div>
+    </div>
+
+    <!-- Konten Utama Website -->
+    <header id="mainContent" class="hidden">
+        <nav class="navbar">
+            <div class="logo"><span class="material-icons logo-icon">warning</span><span>R-18C</span></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link">Beranda</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Produk</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Tentang</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Kontak</a></li>
+            </ul>
+            <div class="filter-buttons">
+                <button class="filter-btn active" id="filterAll" data-filter="all">
+                    <span class="material-icons">apps</span>Semua
+                </button>
+                <button class="filter-btn" id="filterImage" data-filter="image">
+                    <span class="material-icons">image</span>Gambar
+                </button>
+                <button class="filter-btn" id="filterVideo" data-filter="video">
+                    <span class="material-icons">play_circle</span>Video
+                </button>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </nav>
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="search-container">
+                <div class="search-box"><span class="material-icons search-icon">search</span><input type="text" class="search-input" placeholder="Cari konten..." id="searchInput"></div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            <ul class="mobile-nav">
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link">Beranda</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link">Produk</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link">Tentang</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link">Kontak</a></li>
+            </ul>
+        </div>
+    </header>
+    <div class="container" id="contentContainer">
+        <div class="card-grid" id="cardGrid">
+            <!-- Kartu akan dimuat secara dinamis di sini -->
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Password yang benar (dapat diganti sesuai kebutuhan)
+        const CORRECT_PASSWORD = "RGN123456";
+        let attemptsRemaining = 5;
+
+        // Fungsi untuk menampilkan/menyembunyikan password
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('passwordToggle').querySelector('span');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = 'visibility';
+            }
+        }
+
+        // Fungsi untuk memeriksa password
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordError = document.getElementById('passwordError');
+            const passwordAttempts = document.getElementById('passwordAttempts');
+            const passwordModal = document.getElementById('passwordModal');
+            const mainContent = document.getElementById('mainContent');
+            const contentContainer = document.getElementById('contentContainer');
+            
+            const enteredPassword = passwordInput.value.trim();
+            
+            if (enteredPassword === CORRECT_PASSWORD) {
+                // Password benar, sembunyikan modal dan tampilkan konten
+                passwordModal.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                contentContainer.classList.remove('hidden');
+                
+                // Muat kartu setelah password benar
+                loadCards('all');
+                
+                // Reset form
+                passwordInput.value = '';
+                passwordError.classList.remove('show');
+                attemptsRemaining = 5;
+                passwordAttempts.textContent = `Percobaan tersisa: ${attemptsRemaining}`;
+            } else {
+                // Password salah
+                attemptsRemaining--;
+                passwordError.classList.add('show');
+                passwordModal.classList.add('shake');
+                
+                if (attemptsRemaining <= 0) {
+                    passwordError.textContent = 'Anda telah melebihi batas percobaan. Halaman akan dimuat ulang.';
+                    passwordInput.disabled = true;
+                    document.getElementById('passwordSubmit').disabled = true;
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    passwordAttempts.textContent = `Percobaan tersisa: ${attemptsRemaining}`;
+                    
+                    setTimeout(() => {
+                        passwordModal.classList.remove('shake');
+                    }, 500);
+                }
+            }
+        }
+
+        // Inisialisasi event listeners untuk password protection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listener untuk tombol toggle password
+            document.getElementById('passwordToggle').addEventListener('click', togglePasswordVisibility);
+            
+            // Event listener untuk tombol submit password
+            document.getElementById('passwordSubmit').addEventListener('click', checkPassword);
+            
+            // Event listener untuk menekan Enter pada input password
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            
+            // Fokus ke input password saat modal dimuat
+            document.getElementById('passwordInput').focus();
+        });
+
+        // Variabel global untuk menyimpan data kartu
+        let cardData = null;
+        let searchData = [];
+
+        // Fungsi untuk memuat data dari data.json
+        function loadCardData() {
+            return fetch('data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal memuat data: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    cardData = data;
+                    // Buat data pencarian dari cardData
+                    searchData = [];
+                    if (cardData.image) {
+                        cardData.image.forEach(card => {
+                            searchData.push({
+                                title: card.title,
+                                tags: extractTags(card.description),
+                                cardId: card.id
+                            });
+                        });
+                    }
+                    if (cardData.video) {
+                        cardData.video.forEach(card => {
+                            searchData.push({
+                                title: card.title,
+                                tags: extractTags(card.description),
+                                cardId: card.id
+                            });
+                        });
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    const cardGrid = document.getElementById('cardGrid');
+                    cardGrid.innerHTML = '<div class="error-message">Gagal memuat data. Pastikan file data.json tersedia.</div>';
+                    throw error;
+                });
+        }
+
+        // Fungsi untuk mengekstrak tag dari deskripsi
+        function extractTags(description) {
+            const tags = [];
+            const regex = /<span class="description-tag">([^<]+)<\/span>/g;
+            let match;
+            while ((match = regex.exec(description)) !== null) {
+                tags.push(match[1]);
+            }
+            return tags;
+        }
+
+        // Fungsi untuk memuat kartu menggunakan data dari data.json
+        function loadCards(filter = 'all') {
+            const cardGrid = document.getElementById('cardGrid');
+            
+            // Tampilkan loading spinner
+            cardGrid.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
+            
+            // Jika data belum dimuat, tunggu hingga data siap
+            if (!cardData) {
+                loadCardData().then(() => {
+                    renderCards(filter, cardGrid);
+                });
+            } else {
+                renderCards(filter, cardGrid);
+            }
+        }
+
+        // Fungsi untuk merender kartu
+        function renderCards(filter, cardGrid) {
+            let cardsToShow = [];
+            
+            if (filter === 'all') {
+                cardsToShow = [...(cardData.image || []), ...(cardData.video || [])];
+            } else if (filter === 'image') {
+                cardsToShow = cardData.image || [];
+            } else if (filter === 'video') {
+                cardsToShow = cardData.video || [];
+            }
+            
+            // Kosongkan grid
+            cardGrid.innerHTML = '';
+            
+            if (cardsToShow.length === 0) {
+                cardGrid.innerHTML = '<div class="error-message">Tidak ada konten yang ditemukan.</div>';
+                return;
+            }
+            
+            // Tambahkan kartu ke grid
+            cardsToShow.forEach(card => {
+                const cardElement = createCardElement(card);
+                cardGrid.appendChild(cardElement);
+            });
+            
+            // Inisialisasi event listeners untuk kartu yang baru dimuat
+            initializeCardEvents();
+        }
+
+        // Fungsi untuk membuat elemen kartu
+        function createCardElement(card) {
+            const cardDiv = document.createElement('div');
+            
+            // Tentukan kelas tambahan untuk kartu gambar tanpa label
+            let additionalClass = '';
+            if (card.type === 'image') {
+                // Cek apakah kartu memiliki label
+                const hasLabel = card.label && card.labelType;
+                if (!hasLabel) {
+                    additionalClass = 'no-label';
+                }
+            }
+            
+            cardDiv.className = `card ${card.type}-card ${additionalClass}`;
+            cardDiv.setAttribute('data-card', card.id);
+            cardDiv.id = card.id;
+            
+            // Hanya buat label jika ada data label
+            let labelHtml = '';
+            if (card.label && card.labelType) {
+                const labelType = card.labelType;
+                const labelText = card.label;
+                labelHtml = `<div class="card-label ${labelType}" data-link="${card.link}">${labelText}</div>`;
+            }
+            
+            if (card.type === 'image') {
+                cardDiv.innerHTML = `
+                    ${labelHtml}
+                    <button class="expand-btn" title="Tampilkan/Sembunyikan Overlay"><span class="material-icons">fullscreen</span></button>
+                    <img src="${card.imageUrl}" class="card-image" alt="Kartu ${card.title}" loading="lazy">
+                    <div class="card-content">
+                        <h3 class="card-title">${card.title}<span class="material-icons toggle-icon">expand_more</span></h3>
+                        <p class="card-description">${card.description}</p>
+                    </div>
+                `;
+            } else if (card.type === 'video') {
+                // Kartu video tidak memiliki label
+                cardDiv.innerHTML = `
+                    <button class="expand-btn" title="Tampilkan/Sembunyikan Info Video"><span class="material-icons">fullscreen</span></button>
+                    <div class="video-container">
+                        <iframe src="${card.videoUrl}" title="${card.title}" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen loading="lazy"></iframe>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${card.title}<span class="material-icons toggle-icon">expand_more</span></h3>
+                        <p class="card-description">${card.description}</p>
+                    </div>
+                `;
+            }
+            
+            return cardDiv;
+        }
+
+        // Inisialisasi event listeners untuk kartu
+        function initializeCardEvents() {
+            let activeCardTitle = null;
+            
+            function toggleDescription(titleElement) {
+                const description = titleElement.nextElementSibling;
+                
+                if (activeCardTitle && activeCardTitle !== titleElement) {
+                    activeCardTitle.classList.remove('active');
+                    activeCardTitle.nextElementSibling.classList.remove('active');
+                }
+                
+                titleElement.classList.toggle('active');
+                description.classList.toggle('active');
+                
+                if (titleElement.classList.contains('active')) {
+                    activeCardTitle = titleElement;
+                } else {
+                    activeCardTitle = null;
+                }
+            }
+            
+            document.addEventListener('click', function(event) {
+                const clickedElement = event.target;
+                const isCardTitle = clickedElement.classList.contains('card-title') || 
+                                   clickedElement.closest('.card-title');
+                const isCard = clickedElement.classList.contains('card') || 
+                              clickedElement.closest('.card');
+                
+                if (!isCardTitle && activeCardTitle) {
+                    activeCardTitle.classList.remove('active');
+                    activeCardTitle.nextElementSibling.classList.remove('active');
+                    activeCardTitle = null;
+                }
+                
+                if (isCard && !isCardTitle && activeCardTitle) {
+                    const clickedCard = clickedElement.closest('.card');
+                    const activeCard = activeCardTitle.closest('.card');
+                    
+                    if (clickedCard !== activeCard) {
+                        activeCardTitle.classList.remove('active');
+                        activeCardTitle.nextElementSibling.classList.remove('active');
+                        activeCardTitle = null;
+                    }
+                }
+            });
+
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('.card-label') || e.target.closest('.expand-btn')) return;
+                    this.classList.add('shining');
+                    setTimeout(() => {
+                        this.classList.remove('shining');
+                    }, 500);
+                });
+                
+                const expandBtn = card.querySelector('.expand-btn');
+                const cardContent = card.querySelector('.card-content');
+                const cardTitle = card.querySelector('.card-title');
+                
+                function hideOverlay() {
+                    cardContent.classList.add('hidden');
+                    expandBtn.innerHTML = '<span class="material-icons">fullscreen_exit</span>';
+                }
+                
+                function showOverlay() {
+                    cardContent.classList.remove('hidden');
+                    expandBtn.innerHTML = '<span class="material-icons">fullscreen</span>';
+                }
+                
+                expandBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    cardContent.classList.contains('hidden') ? showOverlay() : hideOverlay();
+                });
+                
+                cardTitle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleDescription(this);
+                });
+                
+                if (card.classList.contains('video-card')) {
+                    card.addEventListener('click', function(e) {
+                        if (!e.target.closest('.expand-btn') && !e.target.closest('.card-content')) {
+                            hideOverlay();
+                        }
+                    });
+                }
+                
+                card.addEventListener('mouseleave', showOverlay);
+            });
+            
+            const cardLabels = document.querySelectorAll('.card-label');
+            cardLabels.forEach(label => {
+                label.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const link = this.getAttribute('data-link');
+                    if (link && link !== '#') {
+                        window.open(link, '_blank');
+                    }
+                });
+            });
+        }
+
+        // Inisialisasi aplikasi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listeners untuk filter
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    loadCards(filter);
+                });
+            });
+            
+            // Event listeners untuk hamburger menu
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            hamburger.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+                hamburger.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (!hamburger.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.remove('active');
+                    hamburger.classList.remove('active');
+                }
+            });
+            
+            // Event listeners untuk pencarian
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            function displaySearchResults(results) {
+                searchResults.innerHTML = '';
+                if (results.length > 0) {
+                    searchResults.classList.add('active');
+                    results.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.innerHTML = `<strong>${result.title}</strong><span style="float: right;">${result.tags.map(tag => `<span class="description-tag">${tag}</span>`).join('')}</span>`;
+                        resultItem.addEventListener('click', function() {
+                            searchInput.value = '';
+                            mobileMenu.classList.remove('active');
+                            hamburger.classList.remove('active');
+                            searchResults.classList.remove('active');
+                            
+                            const targetCard = document.getElementById(result.cardId);
+                            if (targetCard) {
+                                targetCard.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                targetCard.classList.add('highlight');
+                                setTimeout(() => {
+                                    targetCard.classList.remove('highlight');
+                                }, 2000);
+                            }
+                        });
+                        searchResults.appendChild(resultItem);
+                    });
+                } else {
+                    searchResults.classList.add('active');
+                    const noResult = document.createElement('div');
+                    noResult.className = 'search-result-item';
+                    noResult.textContent = 'Tidak ada hasil yang ditemukan';
+                    searchResults.appendChild(noResult);
+                }
+            }
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm.length > 0) {
+                    // Tunggu hingga data dimuat jika belum siap
+                    if (searchData.length === 0) {
+                        loadCardData().then(() => {
+                            const filteredResults = searchData.filter(item => 
+                                item.title.toLowerCase().includes(searchTerm) || 
+                                item.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                            );
+                            displaySearchResults(filteredResults);
+                        });
+                    } else {
+                        const filteredResults = searchData.filter(item => 
+                            item.title.toLowerCase().includes(searchTerm) || 
+                            item.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                        );
+                        displaySearchResults(filteredResults);
+                    }
+                } else {
+                    searchResults.classList.remove('active');
+                }
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+                    searchResults.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
